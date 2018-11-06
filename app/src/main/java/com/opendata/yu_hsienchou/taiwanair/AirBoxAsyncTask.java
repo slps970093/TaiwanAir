@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class AirBoxAsyncTask extends AsyncTask <Void,Void,Void> implements APIDataWizard {
     private EdimaxAirBox airBox;
+    private int statusCode;
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -20,6 +21,7 @@ public class AirBoxAsyncTask extends AsyncTask <Void,Void,Void> implements APIDa
     protected Void doInBackground(Void... voids) {
         try{
             airBox = new EdimaxAirBox();
+            statusCode = airBox.getStatusCode();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -30,6 +32,9 @@ public class AirBoxAsyncTask extends AsyncTask <Void,Void,Void> implements APIDa
         return airBox.getModel();
     }
 
+    public int getStatusCode(){
+        return statusCode;
+    }
     @Override
     public String getResult() {
         return airBox.getResult();

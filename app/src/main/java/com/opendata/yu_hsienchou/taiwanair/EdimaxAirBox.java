@@ -16,6 +16,7 @@ import okhttp3.Response;
 public class EdimaxAirBox implements APIDataWizard {
     private String url = "https://pm25.lass-net.org/data/last-all-airbox.json";
     private String result;
+    private int ResponceCode;
     public EdimaxAirBox() throws Exception{
         this.connectAPI();
     }
@@ -31,6 +32,7 @@ public class EdimaxAirBox implements APIDataWizard {
                 .url(url)
                 .build();
         Response response = client.newCall(request).execute();
+        ResponceCode = response.code();
         result = response.body().string();
     }
 
@@ -53,5 +55,9 @@ public class EdimaxAirBox implements APIDataWizard {
     @Override
     public String getResult() {
         return result;
+    }
+
+    public int getStatusCode(){
+        return ResponceCode;
     }
 }
