@@ -67,8 +67,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         }
                     }
                 });
-
-
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -144,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     /**
      * 當地點改變
+     * @// TODO: 2018/11/7 https://www.youtube.com/watch?v=P0dYZcE8510&t=657s 
      * @param location
      */
     @Override
