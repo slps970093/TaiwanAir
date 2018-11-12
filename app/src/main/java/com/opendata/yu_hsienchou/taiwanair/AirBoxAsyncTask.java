@@ -4,39 +4,26 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 
-public class AirBoxAsyncTask extends AsyncTask <Void,Void,Void> implements APIDataWizard {
-    private EdimaxAirBox airBox;
-    private int statusCode;
+public class AirBoxAsyncTask extends AsyncTask<Void,Void,ArrayList<AirDataModel>> {
+    private EdimaxAirBox edimaxAirBox;
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
+    protected void onPostExecute(ArrayList<AirDataModel> airDataModels) {
+        super.onPostExecute(airDataModels);
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
-        try{
-            airBox = new EdimaxAirBox();
-            statusCode = airBox.getStatusCode();
+    protected ArrayList<AirDataModel> doInBackground(Void... voids) {
+        try {
+            edimaxAirBox = new EdimaxAirBox();
         }catch (Exception e){
             e.printStackTrace();
         }
-        return null;
-    }
-    @Override
-    public ArrayList<AirDataModel> getModel() {
-        return airBox.getModel();
-    }
-
-    public int getStatusCode(){
-        return statusCode;
-    }
-    @Override
-    public String getResult() {
-        return airBox.getResult();
+        return edimaxAirBox.getModel();
     }
 }

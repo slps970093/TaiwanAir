@@ -49,13 +49,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         MainActivityPermissionsDispatcher.GPSLocationWithPermissionCheck(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        AirBoxAsyncTask airBoxAsyncTask = new AirBoxAsyncTask();
         try{
-            airBoxAsyncTask.execute();
+            ArrayList<AirDataModel> airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
             // 取得空氣資料
-        //    ArrayList<AirDataModel> airModel = airBoxAsyncTask.getModel();
+            Log.e("data_size",""+airModel.size());
+            // @todo https://www.youtube.com/watch?v=H18P38wn8Z4&fbclid=IwAR2jSKNinkv6Igd1fZQuMK2DfCUO5xJfYtB-HLNogiV2wGZpyejp5EEK1Kg 教學
             setLocationRequest();
             getLocationInfo();
+
+
+
 
             locationCallback = new LocationCallback(){
                 @Override
