@@ -1,32 +1,27 @@
 package com.opendata.yu_hsienchou.taiwanair;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.databinding.DataBindingUtil;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.opendata.yu_hsienchou.taiwanair.Model.DashBoardModel;
+import com.opendata.yu_hsienchou.taiwanair.viewModel.DashBoardViewModel;
+import com.opendata.yu_hsienchou.taiwanair.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
 
@@ -43,37 +38,28 @@ public class MainActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private AirSQLiteModel airSQLiteModel;
+    private double gps_lat,gps_log;
+    private ActivityMainBinding activityMainBinding;
+    private DashBoardViewModel dashBoardViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
         MainActivityPermissionsDispatcher.GPSLocationWithPermissionCheck(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+        dashBoardViewModel = new DashBoardViewModel( new DashBoardModel("HHH",6.9));
+        activityMainBinding.setAirData(dashBoardViewModel);
         try{
-            ArrayList<AirDataModel> airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
             // 取得空氣資料
-            Log.e("data_size",""+airModel.size());
-            // @todo https://www.youtube.com/watch?v=H18P38wn8Z4&fbclid=IwAR2jSKNinkv6Igd1fZQuMK2DfCUO5xJfYtB-HLNogiV2wGZpyejp5EEK1Kg 教學
+            ArrayList<AirDataModel> airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
+            // @todo 教學影片： https://www.youtube.com/watch?v=H18P38wn8Z4&fbclid=IwAR2jSKNinkv6Igd1fZQuMK2DfCUO5xJfYtB-HLNogiV2wGZpyejp5EEK1Kg
             setLocationRequest();
             getLocationInfo();
-
-
-
-
-            locationCallback = new LocationCallback(){
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    super.onLocationResult(locationResult);
-                    for(Location location : locationResult.getLocations()){
-                        Toast.makeText(MainActivity.this,"Lat: "+location.getLatitude()+" Log: "+location.getLongitude(),Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onLocationAvailability(LocationAvailability locationAvailability) {
-                    super.onLocationAvailability(locationAvailability);
-                }
-            };
+            airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
+            Cursor cursor = airSQLiteModel.getAdjacent();
 
 
         }catch (Exception e){
@@ -81,12 +67,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 取得GPS資訊
+     */
     private void getLocationInfo(){
         if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ) {
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
                     if( location != null ){
+                        gps_lat = location.getLatitude();
+                        gps_log = location.getLongitude();
                         Toast.makeText(MainActivity.this,"Lat: "+location.getLatitude()+" Log: "+location.getLongitude(),Toast.LENGTH_LONG).show();
                     }
                 }

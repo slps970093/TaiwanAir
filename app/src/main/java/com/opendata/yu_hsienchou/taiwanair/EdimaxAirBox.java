@@ -11,6 +11,8 @@ import okhttp3.Response;
 
 /**
  * 空氣盒子  API
+ * @// TODO: 2018/11/14  使用 LASS-開源公益環境感測網路
+ * @see https://paper.dropbox.com/doc/LASS-README--AR2OhqY~_TTQzFJ2fMa7a34EAg-2c1MBX2SHK8eyLwDj1vfB
  * @author  Yu-Hsien Chou ( 小周)
  */
 public class EdimaxAirBox implements APIDataWizard {
@@ -23,6 +25,7 @@ public class EdimaxAirBox implements APIDataWizard {
 
     /**
      * 連線到 LASS API
+     *
      * @throws Exception
      */
     private void connectAPI() throws Exception{
@@ -36,6 +39,12 @@ public class EdimaxAirBox implements APIDataWizard {
         result = response.body().string();
     }
 
+    /**
+     * 取得資料模型 （API文件如下）
+     * @see https://paper.dropbox.com/doc/LASS-Data-specification--AR045yt_eqTTKHcMR5tVJ4ZVAg-86K8vkbGWyCG7aMiP1odg
+     * @see https://paper.dropbox.com/doc/LASS-Data-Platform--AR3zWxS6FcUJSa1aVjnj3T~RAg-6kAh1xTE9kVQthu7KnAW2
+     * @return
+     */
     @Override
     public ArrayList<AirDataModel> getModel() {
         ArrayList<AirDataModel> arrayList = new ArrayList<AirDataModel>();
@@ -55,9 +64,5 @@ public class EdimaxAirBox implements APIDataWizard {
     @Override
     public String getResult() {
         return result;
-    }
-
-    public int getStatusCode(){
-        return ResponceCode;
     }
 }
