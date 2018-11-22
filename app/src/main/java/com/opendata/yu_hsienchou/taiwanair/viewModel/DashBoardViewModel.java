@@ -1,8 +1,11 @@
 package com.opendata.yu_hsienchou.taiwanair.viewModel;
 
-import com.opendata.yu_hsienchou.taiwanair.Model.DashBoardModel;
+import android.databinding.BaseObservable;
 
-public class DashBoardViewModel {
+import com.opendata.yu_hsienchou.taiwanair.Model.DashBoardModel;
+import com.opendata.yu_hsienchou.taiwanair.R;
+
+public class DashBoardViewModel  {
     private String locationName;
     private Double pm25Value;
 

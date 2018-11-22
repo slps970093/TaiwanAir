@@ -42,11 +42,11 @@ public class MainActivity extends AppCompatActivity {
     private double gps_lat,gps_log;
     private ActivityMainBinding activityMainBinding;
     private DashBoardViewModel dashBoardViewModel;
-
+    private ArrayList<AirDataModel> airModel ;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
-
+        airSQLiteModel = new AirSQLiteModel(this);
         MainActivityPermissionsDispatcher.GPSLocationWithPermissionCheck(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
@@ -54,16 +54,22 @@ public class MainActivity extends AppCompatActivity {
         activityMainBinding.setAirData(dashBoardViewModel);
         try{
             // 取得空氣資料
-            ArrayList<AirDataModel> airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
+            airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
             // @todo 教學影片： https://www.youtube.com/watch?v=H18P38wn8Z4&fbclid=IwAR2jSKNinkv6Igd1fZQuMK2DfCUO5xJfYtB-HLNogiV2wGZpyejp5EEK1Kg
             setLocationRequest();
             getLocationInfo();
-            airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
-            Cursor cursor = airSQLiteModel.getAdjacent();
-
-
+            showAirInfo();
         }catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    public void showAirInfo(){
+        airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
+        Cursor cursor = airSQLiteModel.getAdjacent();
+        if ( cursor.moveToFirst() != false ){
+            dashBoardViewModel.setLocationName(cursor.getString(cursor.getColumnIndex("name")));
+            dashBoardViewModel.setPm25Value(cursor.getDouble(cursor.getColumnIndex("pm25")));
         }
     }
 
