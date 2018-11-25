@@ -53,7 +53,7 @@ public class EdimaxAirBox implements APIDataWizard {
             JSONArray jsonArray = jsonObject.getJSONArray("feeds");
             for(int n = 0; n <= jsonArray.length(); n++){
                 JSONObject jsonObject1 = (JSONObject) jsonArray.get(n) ;
-                arrayList.add( new AirDataModel( jsonObject1.getString("SiteName"),jsonObject1.getDouble("gps_lat"), jsonObject1.getDouble("gps_lon") ,jsonObject1.getInt("s_d0")));
+                arrayList.add( new AirDataModel( jsonObject1.getString("SiteName"),jsonObject1.getDouble("gps_lat"), jsonObject1.getDouble("gps_lon") ,jsonObject1.getInt("s_d0"),jsonObject1.getString("device_id")));
             }
         }catch (Exception e){
             e.printStackTrace();

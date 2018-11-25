@@ -4,15 +4,17 @@ package com.opendata.yu_hsienchou.taiwanair;
  * 空氣資料模型
  */
 public class AirDataModel {
+    private String device_id;
     private String SiteName;
     private double gpsLatitude;
     private double gpsLongitude;
     private int pm25Value;
-    public AirDataModel(String SiteName, Double gpsLatitude,Double gpsLongitude , int PM25Value){
+    public AirDataModel(String SiteName, Double gpsLatitude,Double gpsLongitude , int PM25Value,String device_id){
         this.SiteName = SiteName;
         this.gpsLatitude = gpsLatitude;
         this.gpsLongitude = gpsLongitude;
         this.pm25Value = PM25Value;
+        this.device_id = device_id;
     }
 
     public double getGpsLatitude() {
@@ -29,6 +31,14 @@ public class AirDataModel {
 
     public String getSiteName() {
         return SiteName;
+    }
+
+    public String getDeviceID() {
+        return device_id;
+    }
+
+    public void setDeviceID(String device_id) {
+        this.device_id = device_id;
     }
 
     public void setGpsLatitude(double gpsLatitude) {

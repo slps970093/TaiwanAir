@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivityPermissionsDispatcher.GPSLocationWithPermissionCheck(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
-        dashBoardViewModel = new DashBoardViewModel( new DashBoardModel("HHH",6.9));
+        dashBoardViewModel = new DashBoardViewModel( new DashBoardModel("HHH",0.0));
         activityMainBinding.setAirData(dashBoardViewModel);
         try{
             // 取得空氣資料
@@ -58,19 +59,23 @@ public class MainActivity extends AppCompatActivity {
             // @todo 教學影片： https://www.youtube.com/watch?v=H18P38wn8Z4&fbclid=IwAR2jSKNinkv6Igd1fZQuMK2DfCUO5xJfYtB-HLNogiV2wGZpyejp5EEK1Kg
             setLocationRequest();
             getLocationInfo();
-            showAirInfo();
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-
     public void showAirInfo(){
-        airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
-        Cursor cursor = airSQLiteModel.getAdjacent();
-        if ( cursor.moveToFirst() != false ){
-            dashBoardViewModel.setLocationName(cursor.getString(cursor.getColumnIndex("name")));
-            dashBoardViewModel.setPm25Value(cursor.getDouble(cursor.getColumnIndex("pm25")));
+        if( gps_lat != 0.0 && gps_log != 0.0 ){
+            airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
+            Cursor cursor = airSQLiteModel.getAdjacent();
+            if ( cursor.moveToFirst() != false ){
+                dashBoardViewModel.setLocationName(cursor.getString(cursor.getColumnIndex("name")));
+                dashBoardViewModel.setPm25Value(cursor.getDouble(cursor.getColumnIndex("pm25")));
+                Log.e("device_id :",cursor.getString(cursor.getColumnIndex("device_id")));
+            }
+        }else{
+            dashBoardViewModel.setLocationName("取得GPS訊號中 請稍後");
         }
+        activityMainBinding.setAirData(dashBoardViewModel);
     }
 
     /**
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     if( location != null ){
                         gps_lat = location.getLatitude();
                         gps_log = location.getLongitude();
+                        showAirInfo();
                         Toast.makeText(MainActivity.this,"Lat: "+location.getLatitude()+" Log: "+location.getLongitude(),Toast.LENGTH_LONG).show();
                     }
                 }

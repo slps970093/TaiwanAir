@@ -4,13 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 
 import java.util.ArrayList;
 
 public class AirSQLiteModel {
     private MyAirDBHelper myAirDBHelper;
     public AirSQLiteModel(Context context){
-        myAirDBHelper = new MyAirDBHelper(context,"airdata.db",1,null);
+        myAirDBHelper = new MyAirDBHelper(context,"airdata.db",null,1);
     }
 
     /**
@@ -23,14 +24,22 @@ public class AirSQLiteModel {
         this.clean_all();
         DistanceConvent distanceConvent = new DistanceConvent();
         SQLiteDatabase db = myAirDBHelper.getWritableDatabase();
-        for( int i = 0; i <= airData.size(); i++){
+        for( int i = 0; i <= airData.size() -1 ; i++){
+            if( (int) airData.get(i).getGpsLatitude() == 0 || (int) airData.get(i).getGpsLongitude() == 0){
+                continue;
+            }
             ContentValues values = new ContentValues();
             values.put("name",airData.get(i).getSiteName());
             values.put("gps_lat",airData.get(i).getGpsLatitude());
             values.put("gps_lon",airData.get(i).getGpsLongitude());
             values.put("pm25",airData.get(i).getPm25Value());
-            distanceConvent.setDistance(gps_lon,gps_lat,airData.get(i).getGpsLongitude(),airData.get(i).getGpsLatitude());
-            values.put("distance",distanceConvent.getKm());
+            //distanceConvent.setDistance(gps_lon,gps_lat,airData.get(i).getGpsLongitude(),airData.get(i).getGpsLatitude());
+            values.put("device_id",airData.get(i).getDeviceID());
+            // https://blog.ccjeng.com/2015/08/android-location.html 距離計算
+            // https://blog.csdn.net/a535182324/article/details/46927681
+            float[] res = new float[1];
+            Location.distanceBetween(gps_lat,gps_lon, airData.get(i).getGpsLatitude(),airData.get(i).getGpsLongitude(),res);
+            values.put("distance",res[0]);
             db.insert("airdata",null,values);
         }
         db.close();
