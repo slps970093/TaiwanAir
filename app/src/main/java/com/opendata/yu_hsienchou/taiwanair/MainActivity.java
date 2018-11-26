@@ -1,11 +1,14 @@
 package com.opendata.yu_hsienchou.taiwanair;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -43,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private double gps_lat,gps_log;
     private ActivityMainBinding activityMainBinding;
     private DashBoardViewModel dashBoardViewModel;
-    private ArrayList<AirDataModel> airModel ;
+    private ArrayList<AirDataModel> airModel;
+    private AirSuggestHelper airSuggestHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -51,8 +55,9 @@ public class MainActivity extends AppCompatActivity {
         MainActivityPermissionsDispatcher.GPSLocationWithPermissionCheck(this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         activityMainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
-        dashBoardViewModel = new DashBoardViewModel( new DashBoardModel("HHH",0.0));
+        dashBoardViewModel = new DashBoardViewModel( new DashBoardModel("GPS  訊號接收中，請稍後... ",0.0,""));
         activityMainBinding.setAirData(dashBoardViewModel);
+        airSuggestHelper = new AirSuggestHelper();
         try{
             // 取得空氣資料
             airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
@@ -63,13 +68,39 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 檢查網路連線狀態
+     * @see http://dean-android.blogspot.com/2013/08/android-connectivity-network-active.html
+     * @return boolean
+     */
+    public boolean getConnectStatus(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null){
+            return networkInfo.isConnected();
+        }
+        return false;
+    }
+
+    /**
+     * 在前端顯示資料
+     */
     public void showAirInfo(){
+        if( getConnectStatus() ){
+            try{
+                airModel = (ArrayList<AirDataModel>) new AirBoxAsyncTask().execute().get();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         if( gps_lat != 0.0 && gps_log != 0.0 ){
             airSQLiteModel.insert_clean_all(airModel,gps_lat,gps_log);
             Cursor cursor = airSQLiteModel.getAdjacent();
             if ( cursor.moveToFirst() != false ){
                 dashBoardViewModel.setLocationName(cursor.getString(cursor.getColumnIndex("name")));
                 dashBoardViewModel.setPm25Value(cursor.getDouble(cursor.getColumnIndex("pm25")));
+                dashBoardViewModel.setCategory(airSuggestHelper.getCategory( cursor.getDouble(cursor.getColumnIndex("pm25")) ));
                 Log.e("device_id :",cursor.getString(cursor.getColumnIndex("device_id")));
             }
         }else{

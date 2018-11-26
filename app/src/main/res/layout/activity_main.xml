@@ -39,6 +39,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@={airData.locationName}" />
+
                 </TableRow>
 
                 <TableRow
@@ -59,14 +60,24 @@
                         android:text="@{Double.toString(airData.pm25Value)}" />
                 </TableRow>
 
-            </TableLayout>
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
 
-            <Button
-                android:id="@+id/button2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="分類" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@={airData.category}" />
+                </TableRow>
+
+            </TableLayout>
 
         </LinearLayout>
 
